@@ -1,76 +1,42 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { Task } from '../task/task';
 import './taskList.css';
 
-class TaskList extends React.Component {
-  render() {
-    const { state, changeTodo, useKey } = this.props;
-    const list = () => {
-      switch (useKey) {
-        case 'All':
-          return state.length === 0
-            ? null
-            : state.map((item, i) => {
-                return (
-                  <Task
-                    key={item.id}
-                    changeTodo={changeTodo}
-                    todo={item.value}
-                    index={i}
-                    id={item.id}
-                    completed={item.completed}
-                    time={item.time}
-                  />
-                );
-              });
+function TaskList({ state, changeTodo, useKey }) {
+  const elemToCreate = (id, func, todo, i, completed, time) => {
+    return (
+      <Task
+        key={id}
+        changeTodo={func}
+        todo={todo}
+        index={i}
+        id={id}
+        completed={completed}
+        time={time}
+      />
+    );
+  };
 
-        case 'Active':
-          return state.length === 0
-            ? null
-            : state.map((item, i) => {
-                if (!item.completed) {
-                  return (
-                    <Task
-                      key={item.id}
-                      changeTodo={changeTodo}
-                      todo={item.value}
-                      index={i}
-                      id={item.id}
-                      completed={item.completed}
-                      time={item.time}
-                    />
-                  );
-                }
-                return null;
-              });
-
-        case 'Completed':
-          return state.length === 0
-            ? null
-            : state.map((item, i) => {
-                if (item.completed) {
-                  return (
-                    <Task
-                      key={item.id}
-                      changeTodo={changeTodo}
-                      todo={item.value}
-                      index={i}
-                      id={item.id}
-                      completed={item.completed}
-                      time={item.time}
-                    />
-                  );
-                }
-                return null;
-              });
-        default:
-          return null;
-      }
-    };
-
-    return <ul className="todo-list">{list()}</ul>;
-  }
+  return (
+    <ul className="todo-list">
+      {state.length === 0
+        ? null
+        : state.map((item, i) => {
+            if (useKey === 'All') {
+              return elemToCreate(item.id, changeTodo, item.value, i, item.completed, item.time);
+            }
+            if (useKey === 'Active') {
+              if (!item.completed)
+                return elemToCreate(item.id, changeTodo, item.value, i, item.completed, item.time);
+            }
+            if (useKey === 'Completed') {
+              if (item.completed)
+                return elemToCreate(item.id, changeTodo, item.value, i, item.completed, item.time);
+            }
+            return null;
+          })}
+    </ul>
+  );
 }
 
 TaskList.defaultProps = {
