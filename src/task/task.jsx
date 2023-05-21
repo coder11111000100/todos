@@ -75,6 +75,9 @@ class Task extends React.Component {
     }
   };
 
+  // eslint-disable-next-line class-methods-use-this
+  onTimer = () => {};
+
   render() {
     const { todo, completed } = this.props;
     const { value, checked } = this.state;
@@ -88,7 +91,17 @@ class Task extends React.Component {
             onChange={(e) => this.onEditTodo(e)}
           />
           <label htmlFor="domId">
-            <span className="description">{todo}</span>
+            <span className="title">{todo}</span>
+            <span className="description">
+              <button onClick={() => this.onTimer} type="button" className="icon icon-play">
+                {' '}
+              </button>
+              {/* <button type="button" className="icon icon-pause">
+                {' '}uiui
+              </button> */}
+              12:25
+            </span>
+
             <span className="created">{formatDistanceToNow(this.newTimeInMinutes())}</span>
           </label>
           <button
@@ -107,13 +120,7 @@ class Task extends React.Component {
         </div>
 
         {value === 'editing' ? (
-          <input
-            autoFocus
-            type="text"
-            onKeyUp={(e) => this.onEditTodo(e)}
-            className="edit"
-            defaultValue={todo}
-          />
+          <input autoFocus type="text" onKeyUp={(e) => this.onEditTodo(e)} className="edit" defaultValue={todo} />
         ) : null}
       </li>
     );
