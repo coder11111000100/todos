@@ -7,11 +7,31 @@ import './task.css';
 class Task extends React.Component {
   constructor(props) {
     super(props);
+    this.timerId = React.createRef(null);
     this.state = {
       value: '',
       checked: false,
       date: props.time,
+      key: true,
+      sec: 0,
+      minutes: 0,
+      hour: 0,
+      deys: 0,
     };
+  }
+
+  componentDidMount() {
+    const { intial, id } = this.props;
+    if (intial[id]) {
+      const { deys, hour, minutes, sec } = intial[id];
+      this.setState({ deys, hour, minutes, sec });
+    }
+  }
+
+  componentWillUnmount() {
+    const { id, onDefaultState } = this.props;
+    const { deys, hour, minutes, sec } = this.state;
+    onDefaultState({ [id]: { deys, hour, minutes, sec } });
   }
 
   newTimeInMinutes = () => {
@@ -75,12 +95,50 @@ class Task extends React.Component {
     }
   };
 
-  // eslint-disable-next-line class-methods-use-this
-  onTimer = () => {};
+  onTimer = () => {
+    this.setState((pre) => {
+      clearInterval(this.timerId.current);
+      const { key } = pre;
+      if (key) {
+        this.timerId.current = setInterval(() => {
+          this.setState((prev) => {
+            const { sec, minutes, hour, deys } = prev;
+            if (hour === 23 && minutes === 59 && sec === 59) {
+              return {
+                sec: 0,
+                minutes: 0,
+                hour: 0,
+                deys: deys + 1,
+              };
+            }
+            if (minutes === 59) {
+              return {
+                sec: 0,
+                minutes: 0,
+                hour: hour + 1,
+              };
+            }
+            if (sec === 59) {
+              return {
+                sec: 0,
+                minutes: minutes + 1,
+              };
+            }
+
+            return {
+              sec: sec + 1,
+            };
+          });
+        }, 1000);
+      }
+
+      return { key: !key };
+    });
+  };
 
   render() {
     const { todo, completed } = this.props;
-    const { value, checked } = this.state;
+    const { value, checked, key, sec, minutes, hour, deys } = this.state;
     return (
       <li className={completed ? 'completed' : value}>
         <div className="view">
@@ -93,13 +151,10 @@ class Task extends React.Component {
           <label htmlFor="domId">
             <span className="title">{todo}</span>
             <span className="description">
-              <button onClick={() => this.onTimer} type="button" className="icon icon-play">
+              <button onClick={this.onTimer} type="button" className={key ? 'icon icon-play' : 'icon icon-pause'}>
                 {' '}
               </button>
-              {/* <button type="button" className="icon icon-pause">
-                {' '}uiui
-              </button> */}
-              12:25
+              deys:{deys} {hour}:{minutes > 9 ? minutes : `0${minutes}`}:{sec > 9 ? sec : `0${sec}`}
             </span>
 
             <span className="created">{formatDistanceToNow(this.newTimeInMinutes())}</span>
@@ -126,6 +181,11 @@ class Task extends React.Component {
     );
   }
 }
+
+// const elem = document.querySelector('.view');
+// elem.addEventListener('click', (e) => {
+//   console.log(e);
+// });
 
 Task.defaultProps = {
   changeTodo: Function.prototype,
