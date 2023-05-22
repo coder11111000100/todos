@@ -29,6 +29,7 @@ class Task extends React.Component {
   }
 
   componentWillUnmount() {
+    clearInterval(this.timerId.current);
     const { id, onDefaultState } = this.props;
     const { deys, hour, minutes, sec } = this.state;
     onDefaultState({ [id]: { deys, hour, minutes, sec } });
